@@ -41,20 +41,54 @@ export async function initiateB2C(
     const token = await generateAccessToken();
 
     const payload = {
+        OriginatorConversationID: `${MPESA_SHORTCODE}_${Date.now()}`,
         InitiatorName: MPESA_INITIATOR_NAME,
         SecurityCredential: MPESA_SECURITY_CREDENTIAL,
         CommandID: "BusinessPayment",
-        Amount: amount,
+        Amount: amount.toString(),
         PartyA: MPESA_SHORTCODE,
         PartyB: phoneNumber,
         Remarks: remarks,
         QueueTimeOutURL: `${BASE_URL}/api/b2c/timeout`,
         ResultURL: `${BASE_URL}/api/b2c/result`,
-        Occasion: "Payout"
+        Occassion: "Payout"
     };
 
     const response = await axios.post(
-        `${MPESA_BASE_URL}/mpesa/b2c/v1/paymentrequest`,
+        `${MPESA_BASE_URL}/mpesa/b2c/v3/paymentrequest`,
+        payload,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    return response.data;
+}
+
+/**
+ * Query Transaction Status using OriginatorConversationID
+ * Use this when QueueTimeOutURL fires or callback is delayed
+ */
+export async function queryTransactionStatus(originatorConversationID: string) {
+    const token = await generateAccessToken();
+
+    const payload = {
+        Initiator: MPESA_INITIATOR_NAME,
+        SecurityCredential: MPESA_SECURITY_CREDENTIAL,
+        CommandID: "TransactionStatusQuery",
+        OriginatorConversationID: originatorConversationID,
+        PartyA: MPESA_SHORTCODE,
+        IdentifierType: "4",
+        ResultURL: `${BASE_URL}/api/b2c/result`,
+        QueueTimeOutURL: `${BASE_URL}/api/b2c/timeout`,
+        Remarks: "Transaction status query",
+        Occasion: ""
+    };
+
+    const response = await axios.post(
+        `${MPESA_BASE_URL}/mpesa/transactionstatus/v1/query`,
         payload,
         {
             headers: {

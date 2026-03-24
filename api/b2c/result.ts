@@ -60,7 +60,8 @@ export default async function handler(
     const receipt = getParam("TransactionReceipt");
     const receiverName = getParam("ReceiverPartyPublicName");
     const completedAt = getParam("TransactionCompletedDateTime");
-    const transactionId = getParam("TransactionID");
+    const transactionId = result?.TransactionID;
+
     if (resultCode === "0") {
         // ✅ SUCCESS
 
@@ -69,13 +70,13 @@ export default async function handler(
             transactionAmount,
             receiverName,
             completedAt,
-            conversationId: result.ConversationID,
-            transactionId
+            transactionId,
+            originatorConversationId: result.OriginatorConversationID,
         });
 
         // TODO:
         // - Update DB transaction as SUCCESS
-        // - Match by ConversationID
+        // - Match by OriginatorConversationID
         // - Store receipt & completion time
 
     } else {
@@ -83,11 +84,12 @@ export default async function handler(
         console.error("B2C FAILED:", {
             code: resultCode,
             message: readableMessage,
-            conversationId: result?.ConversationID
+            originatorConversationId: result?.OriginatorConversationID,
         });
 
         // TODO:
         // - Update DB transaction as FAILED
+        // - Match by OriginatorConversationID
         // - Store failure reason
     }
 
