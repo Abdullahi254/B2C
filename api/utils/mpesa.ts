@@ -51,7 +51,7 @@ export async function initiateB2C(
         Remarks: remarks,
         QueueTimeOutURL: `${BASE_URL}/api/b2c/timeout`,
         ResultURL: `${BASE_URL}/api/b2c/result`,
-        Occassion: "Payout"
+        Occasion: "Payout"
     };
 
     const response = await axios.post(

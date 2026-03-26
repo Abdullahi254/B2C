@@ -30,9 +30,10 @@ export default async function handler(
     });
 
   } catch (error: any) {
+    console.error(error);
     return res.status(500).json({
       message: "Failed to initiate B2C",
-      error: error.response?.data || error.message
+      error: error.message
     });
   }
 }
